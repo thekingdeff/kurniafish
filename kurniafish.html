@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kurnia Fish — Informasi, Modal & Penjualan Lele</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --red-primary: #c81e1e;
+      --red-dark: #9b1c1c;
+      --red-soft: #fef2f2;
+      --red-border: #fecaca;
+      --bg-page: #ffffff;
+      --text-main: #111827;
+      --text-muted: #4b5563;
+      --line: #e5e7eb;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav-wrap {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--red-primary);
+      text-decoration: none;
+    }
+
+    .brand-badge {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--red-primary);
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .nav-btn {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .nav-btn:hover {
+      color: var(--red-primary);
+      background: var(--red-soft);
+    }
+
+    .nav-btn.active {
+      background: var(--red-primary);
+      color: #ffffff;
+    }
+
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 20px 64px;
+    }
+
+    section.page {
+      display: none;
+    }
+
+    section.page.active {
+      display: block;
+    }
+
+    .hero {
+      background: var(--red-soft);
+      border: 1px solid var(--red-border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      background: var(--red-primary);
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .hero h1 {
+      font-size: 1.85rem;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      max-width: 680px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .card-highlight {
+      background: var(--red-soft);
+      border-color: var(--red-border);
+    }
+
+    .card-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .card-value {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--red-primary);
+    }
+
+    .card-sub {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    h2.section-title {
+      font-size: 1.3rem;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--red-soft);
+      color: var(--text-main);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.94rem;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      background: var(--red-soft);
+      color: var(--red-dark);
+      font-weight: 700;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .total-bar {
+      margin-top: 12px;
+      margin-bottom: 24px;
+      padding: 16px 20px;
+      background: var(--red-soft);
+      border: 1px solid var(--red-border);
+      border-radius: var(--radius);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .total-amount {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--red-primary);
+    }
+
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 9px 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-red {
+      background: var(--red-primary);
+      color: #fff;
+    }
+
+    .btn-red:hover {
+      background: var(--red-dark);
+    }
+
+    .btn-outline {
+      background: #fff;
+      color: var(--text-main);
+      border: 1px solid var(--line);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--red-primary);
+      color: var(--red-primary);
+    }
+
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 0.82rem;
+    }
+
+    .btn-edit {
+      background: var(--red-soft);
+      color: var(--red-dark);
+      border: 1px solid var(--red-border);
+    }
+
+    .btn-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .action-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    input, select {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 0.92rem;
+      background: #fff;
+      color: var(--text-main);
+    }
+
+    input:focus, select:focus {
+      outline: 2px solid var(--red-border);
+      border-color: var(--red-primary);
+    }
+
+    .admin-box {
+      max-width: 420px;
+      margin: 24px auto;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .status-note {
+      font-size: 0.86rem;
+      color: var(--red-dark);
+      margin-top: 10px;
+      min-height: 20px;
+    }
+
+    .admin-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-wrap">
+      <a class="brand" href="#home" onclick="switchPage('home'); return false;">
+        <span class="brand-badge"></span>
+        <span>Kurnia Fish</span>
+      </a>
+      <nav aria-label="Navigasi Utama">
+        <button class="nav-btn active" data-page="home" onclick="switchPage('home')">Home</button>
+        <button class="nav-btn" data-page="ikan" onclick="switchPage('ikan')">Jenis Ikan</button>
+        <button class="nav-btn" data-page="modal" onclick="switchPage('modal')">Rincian Modal</button>
+        <button class="nav-btn" data-page="admin" onclick="switchPage('admin')">Login Admin</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="page-home" class="page active">
+      <div class="hero">
+        <span class="hero-tag">Budidaya Ikan Air Tawar</span>
+        <h1>Kurnia Fish</h1>
+        <p>
+          Halaman informasi budidaya ikan lele Kurnia Fish—menampilkan jenis ikan yang dikelola,
+          rincian modal, rincian penjualan, serta perhitungan keuntungan bersih.
+        </p>
+      </div>
+
+      <div class="grid-4">
+        <div class="card">
+          <div class="card-label">Jenis Ikan Dikelola</div>
+          <div class="card-value">1 Jenis</div>
+          <div class="card-sub">Fokus budidaya ikan lele</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Total Modal</div>
+          <div class="card-value" id="home-total-modal">Memuat...</div>
+          <div class="card-sub" id="home-modal-count">Menghubungkan...</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Total Penjualan</div>
+          <div class="card-value" id="home-total-sales">Memuat...</div>
+          <div class="card-sub" id="home-sales-count">Menghubungkan...</div>
+        </div>
+        <div class="card card-highlight">
+          <div class="card-label">Keuntungan Bersih</div>
+          <div class="card-value" id="home-profit">Memuat...</div>
+          <div class="card-sub" id="home-profit-note">Penjualan dikurangi modal</div>
+        </div>
+      </div>
+
+      <h2 class="section-title">Rekap Modal Per Kategori</h2>
+      <div id="home-category-summary" class="grid-4"></div>
+
+      <h2 class="section-title">Ringkasan Rincian Modal Terkini</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Pos / Keterangan</th>
+              <th>Kategori</th>
+              <th>Nominal</th>
+            </tr>
+          </thead>
+          <tbody id="home-modal-preview"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- JENIS IKAN -->
+    <section id="page-ikan" class="page">
+      <h2 class="section-title">Jenis Ikan yang Dikelola</h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-label">Komoditas Utama</div>
+          <h3 style="color: var(--red-primary); font-size: 1.3rem; margin-bottom: 6px;">Lele</h3>
+          <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 10px;">
+            Ikan air tawar utama yang dikelola di Kurnia Fish dengan pemantauan pakan dan kondisi kolam.
+          </p>
+          <div class="card-sub"><strong>Pakan utama:</strong> PF-1000</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RINCIAN MODAL & PENJUALAN -->
+    <section id="page-modal" class="page">
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-label">Total Modal</div>
+          <div class="card-value" id="modal-page-total">Rp0</div>
+          <div class="card-sub">Akumulasi pengeluaran modal</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Total Penjualan</div>
+          <div class="card-value" id="modal-page-sales">Rp0</div>
+          <div class="card-sub">Akumulasi pemasukan penjualan</div>
+        </div>
+        <div class="card card-highlight">
+          <div class="card-label">Keuntungan Bersih</div>
+          <div class="card-value" id="modal-page-profit">Rp0</div>
+          <div class="card-sub" id="modal-page-profit-status">Selisih penjualan dan modal</div>
+        </div>
+      </div>
+
+      <h2 class="section-title">Rekap Modal Per Kategori</h2>
+      <div id="modal-category-summary" class="grid-4"></div>
+
+      <h2 class="section-title">Rincian Modal Peternakan Kurnia Fish</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Keterangan</th>
+              <th>Kategori</th>
+              <th>Biaya</th>
+            </tr>
+          </thead>
+          <tbody id="modal-table-body"></tbody>
+        </table>
+      </div>
+      <div class="total-bar">
+        <strong>Total Keseluruhan Modal</strong>
+        <span class="total-amount" id="modal-grand-total">Rp0</span>
+      </div>
+
+      <h2 class="section-title">Rincian Penjualan</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Keterangan Penjualan</th>
+              <th>Kategori</th>
+              <th>Pendapatan</th>
+            </tr>
+          </thead>
+          <tbody id="sales-table-body"></tbody>
+        </table>
+      </div>
+      <div class="total-bar">
+        <strong>Total Keseluruhan Penjualan</strong>
+        <span class="total-amount" id="sales-grand-total">Rp0</span>
+      </div>
+    </section>
+
+    <!-- LOGIN & PANEL ADMIN -->
+    <section id="page-admin" class="page">
+      <div id="admin-login-view" class="admin-box">
+        <h2 class="section-title">Login Admin Kurnia Fish</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+          Masuk untuk mengelola rincian modal dan rincian penjualan di database Supabase.
+        </p>
+        <form onsubmit="handleLogin(event)">
+          <div class="field" style="margin-bottom: 12px;">
+            <label for="admin-user">Username</label>
+            <input id="admin-user" type="text" value="admin" required />
+          </div>
+          <div class="field" style="margin-bottom: 16px;">
+            <label for="admin-pass">Password / PIN</label>
+            <input id="admin-pass" type="password" placeholder="Masukkan password (default: admin123)" required />
+          </div>
+          <button type="submit" class="btn btn-red" style="width: 100%;">Masuk Panel Admin</button>
+          <div id="login-msg" class="status-note"></div>
+        </form>
+      </div>
+
+      <div id="admin-panel-view" style="display: none;">
+        <div class="admin-header-bar">
+          <div>
+            <h2 class="section-title" style="border: none; margin: 0; padding: 0;">Panel Admin — Kurnia Fish</h2>
+            <p style="color: var(--text-muted); font-size: 0.88rem;">Kelola modal & penjualan secara permanen di Supabase</p>
+          </div>
+          <button class="btn btn-red" onclick="handleLogout()">Keluar</button>
+        </div>
+
+        <div class="card" style="margin-bottom: 24px;">
+          <h3 id="form-heading" style="margin-bottom: 14px; font-size: 1.05rem;">Tambah Catatan Keuangan</h3>
+          <form onsubmit="saveFinanceItem(event)">
+            <input type="hidden" id="editing-id" value="" />
+            <input type="hidden" id="editing-type" value="" />
+            <div class="form-grid">
+              <div class="field">
+                <label for="record-type">Jenis Catatan</label>
+                <select id="record-type" onchange="syncCategoryOptions()">
+                  <option value="expense">Rincian Modal</option>
+                  <option value="sale">Rincian Penjualan</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="record-name">Keterangan / Nama Pos</label>
+                <input id="record-name" type="text" placeholder="Contoh: Pakan PF-1000 atau Panen Lele 50 kg" required />
+              </div>
+              <div class="field">
+                <label for="record-category">Kategori</label>
+                <select id="record-category"></select>
+              </div>
+              <div class="field">
+                <label for="record-amount">Nominal (Rp)</label>
+                <input id="record-amount" type="number" min="0" step="100" placeholder="25000" required />
+              </div>
+            </div>
+            <div class="action-group">
+              <button type="submit" class="btn btn-red" id="save-btn">Simpan ke Database</button>
+              <button type="button" class="btn btn-outline" id="cancel-edit-btn" style="display: none;" onclick="cancelEdit()">Batal Edit</button>
+            </div>
+            <div id="admin-msg" class="status-note"></div>
+          </form>
+        </div>
+
+        <h3 style="margin-bottom: 12px; font-size: 1.05rem;">Kelola Rincian Modal</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Keterangan</th>
+                <th>Kategori</th>
+                <th>Nominal</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="admin-modal-body"></tbody>
+          </table>
+        </div>
+
+        <h3 style="margin-bottom: 12px; font-size: 1.05rem;">Kelola Rincian Penjualan</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Keterangan</th>
+                <th>Kategori</th>
+                <th>Nominal</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="admin-sales-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Ganti dua nilai di bawah ini dengan kredensial proyek Supabase Anda
+    const SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+    const ADMIN_PIN = "admin123";
+    const ADMIN_AUTH_KEY = "kurnia_fish_admin_logged_in";
+    const EXPENSE_CATEGORIES = ["Kolam", "Gaji Pekerja", "Pakan", "Lainnya"];
+    const SALE_CATEGORIES = ["Penjualan Lele", "Panen Eceran", "Borongan", "Lainnya"];
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentExpenses = [];
+    let currentSales = [];
+
+    function formatRupiah(num) {
+      const value = Number(num || 0);
+      const sign = value < 0 ? "-" : "";
+      return sign + "Rp" + Math.abs(value).toLocaleString("id-ID");
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text ?? "";
+      return div.innerHTML;
+    }
+
+    function syncCategoryOptions(selectedValue = "") {
+      const type = document.getElementById("record-type").value;
+      const select = document.getElementById("record-category");
+      const list = type === "sale" ? SALE_CATEGORIES : EXPENSE_CATEGORIES;
+      select.innerHTML = list
+        .map((cat) => `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`)
+        .join("");
+
+      if (selectedValue && list.includes(selectedValue)) {
+        select.value = selectedValue;
+      } else {
+        select.value = list[0];
+      }
+    }
+
+    function switchPage(pageName) {
+      document.querySelectorAll("section.page").forEach((sec) => sec.classList.remove("active"));
+      document.querySelectorAll(".nav-btn").forEach((btn) => btn.classList.remove("active"));
+
+      const target = document.getElementById("page-" + pageName);
+      const navBtn = document.querySelector(`.nav-btn[data-page="${pageName}"]`);
+      if (target) target.classList.add("active");
+      if (navBtn) navBtn.classList.add("active");
+
+      if (pageName === "admin") {
+        syncAdminView();
+      }
+    }
+
+    function syncAdminView() {
+      const isLoggedIn = sessionStorage.getItem(ADMIN_AUTH_KEY) === "true";
+      document.getElementById("admin-login-view").style.display = isLoggedIn ? "none" : "block";
+      document.getElementById("admin-panel-view").style.display = isLoggedIn ? "block" : "none";
+      if (isLoggedIn && !document.getElementById("record-category").options.length) {
+        syncCategoryOptions();
+      }
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      const pass = document.getElementById("admin-pass").value;
+      const msg = document.getElementById("login-msg");
+      if (pass === ADMIN_PIN) {
+        sessionStorage.setItem(ADMIN_AUTH_KEY, "true");
+        msg.textContent = "";
+        document.getElementById("admin-pass").value = "";
+        syncAdminView();
+      } else {
+        msg.textContent = "Password salah. Gunakan password contoh: admin123";
+      }
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem(ADMIN_AUTH_KEY);
+      cancelEdit();
+      syncAdminView();
+    }
+
+    function startEdit(type, id) {
+      const source = type === "sale" ? currentSales : currentExpenses;
+      const item = source.find((row) => String(row.id) === String(id));
+      if (!item) return;
+
+      document.getElementById("editing-id").value = item.id;
+      document.getElementById("editing-type").value = type;
+      document.getElementById("record-type").value = type;
+      syncCategoryOptions(item.category);
+      document.getElementById("record-name").value = item.name;
+      document.getElementById("record-amount").value = item.amount;
+      document.getElementById("form-heading").textContent = type === "sale" ? "Edit Rincian Penjualan" : "Edit Rincian Modal";
+      document.getElementById("save-btn").textContent = "Update Data";
+      document.getElementById("cancel-edit-btn").style.display = "inline-block";
+      document.getElementById("admin-msg").textContent = "";
+      document.getElementById("record-name").focus();
+    }
+
+    function cancelEdit() {
+      document.getElementById("editing-id").value = "";
+      document.getElementById("editing-type").value = "";
+      document.getElementById("record-type").value = "expense";
+      syncCategoryOptions();
+      document.getElementById("record-name").value = "";
+      document.getElementById("record-amount").value = "";
+      document.getElementById("form-heading").textContent = "Tambah Catatan Keuangan";
+      document.getElementById("save-btn").textContent = "Simpan ke Database";
+      document.getElementById("cancel-edit-btn").style.display = "none";
+    }
+
+    async function fetchFinanceData() {
+      const [expRes, salesRes] = await Promise.all([
+        sb.from("expenses").select("id, name, category, amount, created_at").order("id", { ascending: true }),
+        sb.from("sales").select("id, name, category, amount, created_at").order("id", { ascending: true })
+      ]);
+
+      if (expRes.error || salesRes.error) {
+        document.getElementById("home-modal-count").textContent = "Gagal memuat data Supabase";
+        document.getElementById("home-sales-count").textContent = "Periksa tabel expenses & sales";
+        console.error(expRes.error || salesRes.error);
+        return;
+      }
+
+      currentExpenses = expRes.data || [];
+      currentSales = salesRes.data || [];
+      renderFinance();
+    }
+
+    async function saveFinanceItem(event) {
+      event.preventDefault();
+      const editingId = document.getElementById("editing-id").value.trim();
+      const editingType = document.getElementById("editing-type").value.trim();
+      const type = editingId && editingType ? editingType : document.getElementById("record-type").value;
+      const table = type === "sale" ? "sales" : "expenses";
+      const name = document.getElementById("record-name").value.trim();
+      const category = document.getElementById("record-category").value;
+      const amount = Number(document.getElementById("record-amount").value);
+      const msg = document.getElementById("admin-msg");
+      const btn = document.getElementById("save-btn");
+
+      if (!name || Number.isNaN(amount) || amount < 0) {
+        msg.textContent = "Mohon isi keterangan dan nominal dengan benar.";
+        return;
+      }
+
+      btn.disabled = true;
+      msg.textContent = editingId ? "Memperbarui data di Supabase..." : "Menyimpan ke Supabase...";
+
+      let error;
+      if (editingId) {
+        const res = await sb.from(table).update({ name, category, amount }).eq("id", editingId);
+        error = res.error;
+      } else {
+        const res = await sb.from(table).insert([{ name, category, amount }]);
+        error = res.error;
+      }
+
+      btn.disabled = false;
+
+      if (error) {
+        msg.textContent = "Gagal menyimpan: " + error.message;
+        return;
+      }
+
+      const wasEditing = Boolean(editingId);
+      cancelEdit();
+      msg.textContent = wasEditing ? "Data berhasil diperbarui." : "Tersimpan permanen di Supabase.";
+      await fetchFinanceData();
+    }
+
+    async function deleteFinanceItem(type, id) {
+      const table = type === "sale" ? "sales" : "expenses";
+      const msg = document.getElementById("admin-msg");
+      const { error } = await sb.from(table).delete().eq("id", id);
+
+      if (error) {
+        msg.textContent = "Gagal menghapus: " + error.message;
+        return;
+      }
+
+      if (String(document.getElementById("editing-id").value) === String(id)) {
+        cancelEdit();
+      }
+      msg.textContent = "Data dihapus dari Supabase.";
+      await fetchFinanceData();
+    }
+
+    function getCategoryTotals() {
+      const totals = {
+        Kolam: { sum: 0, count: 0 },
+        "Gaji Pekerja": { sum: 0, count: 0 },
+        Pakan: { sum: 0, count: 0 },
+        Lainnya: { sum: 0, count: 0 }
+      };
+
+      for (const item of currentExpenses) {
+        const key = EXPENSE_CATEGORIES.includes(item.category) ? item.category : "Lainnya";
+        totals[key].sum += Number(item.amount || 0);
+        totals[key].count += 1;
+      }
+
+      return totals;
+    }
+
+    function renderCategoryCards(containerId, totals) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = EXPENSE_CATEGORIES.map((cat) => `
+        <div class="card">
+          <div class="card-label">${escapeHtml(cat)}</div>
+          <div class="card-value">${formatRupiah(totals[cat].sum)}</div>
+          <div class="card-sub">${totals[cat].count} pos tercatat</div>
+        </div>
+      `).join("");
+    }
+
+    function renderFinance() {
+      const totalModal = currentExpenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+      const totalSales = currentSales.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+      const profit = totalSales - totalModal;
+      const totalsByCat = getCategoryTotals();
+
+      const profitStatusText =
+        profit > 0
+          ? "Untung bersih (penjualan lebih besar dari modal)"
+          : profit < 0
+            ? "Belum balik modal (modal masih lebih besar dari penjualan)"
+            : "Impas / belum ada selisih";
+
+      // Home cards
+      document.getElementById("home-total-modal").textContent = formatRupiah(totalModal);
+      document.getElementById("home-modal-count").textContent = `${currentExpenses.length} pos modal tercatat`;
+      document.getElementById("home-total-sales").textContent = formatRupiah(totalSales);
+      document.getElementById("home-sales-count").textContent = `${currentSales.length} transaksi penjualan`;
+      document.getElementById("home-profit").textContent = formatRupiah(profit);
+      document.getElementById("home-profit-note").textContent = profitStatusText;
+
+      // Modal page summary cards
+      document.getElementById("modal-page-total").textContent = formatRupiah(totalModal);
+      document.getElementById("modal-page-sales").textContent = formatRupiah(totalSales);
+      document.getElementById("modal-page-profit").textContent = formatRupiah(profit);
+      document.getElementById("modal-page-profit-status").textContent = profitStatusText;
+
+      renderCategoryCards("home-category-summary", totalsByCat);
+      renderCategoryCards("modal-category-summary", totalsByCat);
+
+      // Home preview table
+      const homePreview = document.getElementById("home-modal-preview");
+      homePreview.innerHTML = currentExpenses.length
+        ? currentExpenses.map((item) => `
+            <tr>
+              <td>${escapeHtml(item.name)}</td>
+              <td>${escapeHtml(item.category)}</td>
+              <td><strong>${formatRupiah(item.amount)}</strong></td>
+            </tr>
+          `).join("")
+        : `<tr><td colspan="3">Belum ada data rincian modal.</td></tr>`;
+
+      // Modal table
+      const modalBody = document.getElementById("modal-table-body");
+      modalBody.innerHTML = currentExpenses.length
+        ? currentExpenses.map((item, idx) => `
+            <tr>
+              <td>${idx + 1}</td>
+              <td>${escapeHtml(item.name)}</td>
+              <td>${escapeHtml(item.category)}</td>
+              <td><strong>${formatRupiah(item.amount)}</strong></td>
+            </tr>
+          `).join("")
+        : `<tr><td colspan="4">Belum ada rincian modal.</td></tr>`;
+      document.getElementById("modal-grand-total").textContent = formatRupiah(totalModal);
+
+      // Sales table
+      const salesBody = document.getElementById("sales-table-body");
+      salesBody.innerHTML = currentSales.length
+        ? currentSales.map((item, idx) => `
+            <tr>
+              <td>${idx + 1}</td>
+              <td>${escapeHtml(item.name)}</td>
+              <td>${escapeHtml(item.category)}</td>
+              <td><strong>${formatRupiah(item.amount)}</strong></td>
+            </tr>
+          `).join("")
+        : `<tr><td colspan="4">Belum ada rincian penjualan.</td></tr>`;
+      document.getElementById("sales-grand-total").textContent = formatRupiah(totalSales);
+
+      // Admin modal table
+      const adminModalBody = document.getElementById("admin-modal-body");
+      adminModalBody.innerHTML = currentExpenses.length
+        ? currentExpenses.map((item) => `
+            <tr>
+              <td>${escapeHtml(item.name)}</td>
+              <td>${escapeHtml(item.category)}</td>
+              <td>${formatRupiah(item.amount)}</td>
+              <td>
+                <div class="action-group">
+                  <button class="btn btn-sm btn-edit" onclick="startEdit('expense', ${item.id})">Edit</button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteFinanceItem('expense', ${item.id})">Hapus</button>
+                </div>
+              </td>
+            </tr>
+          `).join("")
+        : `<tr><td colspan="4">Belum ada data modal.</td></tr>`;
+
+      // Admin sales table
+      const adminSalesBody = document.getElementById("admin-sales-body");
+      adminSalesBody.innerHTML = currentSales.length
+        ? currentSales.map((item) => `
+            <tr>
+              <td>${escapeHtml(item.name)}</td>
+              <td>${escapeHtml(item.category)}</td>
+              <td>${formatRupiah(item.amount)}</td>
+              <td>
+                <div class="action-group">
+                  <button class="btn btn-sm btn-edit" onclick="startEdit('sale', ${item.id})">Edit</button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteFinanceItem('sale', ${item.id})">Hapus</button>
+                </div>
+              </td>
+            </tr>
+          `).join("")
+        : `<tr><td colspan="4">Belum ada data penjualan.</td></tr>`;
+    }
+
+    syncCategoryOptions();
+    fetchFinanceData();
+  </script>
+</body>
+</html>
